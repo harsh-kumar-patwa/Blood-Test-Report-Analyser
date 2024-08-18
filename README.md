@@ -86,3 +86,6 @@ This will:
 - `custom_LLM.py`: Custom language model implementation
 - `main.py`: Main script orchestrating the analysis process
 
+## Approach Document 
+[Approach Doc](https://docs.google.com/document/d/1qswPhiAZiHuFvGDQlNAxWRFoS7MrNRlAeg1ZwoXzVZU/edit?usp=sharing)
+

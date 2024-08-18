@@ -75,10 +75,17 @@ def main():
         result = crew.kickoff()
 
         # Step 6: Display results
-        for i, task_output in enumerate(result.tasks_output):
-            print(f"\n--- Task {i+1} Output ---")
-            print(f"Output:\n{task_output.raw}")
-            print("-" * 50)
+        print("\n--- Blood Test Analysis ---")
+        print(f"\n{result.tasks_output[0].raw}")
+        print("-" * 50)
+
+        print("\n--- Relevant Articles ---")
+        print(f"\n{result.tasks_output[1].raw}")
+        print("-" * 50)
+
+        print("\n--- Health Recommendations ---")
+        print(f"\n{result.tasks_output[2].raw}")
+        print("-" * 50)
 
 
     except Exception as e:

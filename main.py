@@ -22,8 +22,8 @@ def main():
         # Step 3: Create agents
         analysis_agent = Agent(
             role="Blood Test Analyzer",
-            goal="Analyze blood test reports and provide detailed summaries",
-            backstory="An expert in interpreting medical test results with years of experience in clinical diagnostics.",
+            goal="Analyze the blood test report and provide a summary that is understandable to a person without medical knowledge. Also make the summary short and simple ",
+            backstory="A normal human is interpreting medical test results with no experience in clinical diagnostics.",
             verbose=True,
             allow_delegation=False,
             llm=custom_llm
@@ -32,7 +32,7 @@ def main():
         search_agent = Agent(
             role="Medical Article Researcher",
             goal="Find relevant health articles based on blood test analysis",
-            backstory="A skilled researcher with vast knowledge of medical literature and access to extensive medical databases.",
+            backstory="A normal human with less knowledge of medical literature.",
             verbose=True,
             allow_delegation=False,
             llm=custom_llm
@@ -49,9 +49,9 @@ def main():
 
         # Step 4: Define tasks
         analyze_task = Task(
-            description=f"Analyze the following blood test report and provide a detailed summary: {text}",
+            description=f"Analyze the following blood test report and provide a summary that is understandable to a person without medical knowledge. Also make the summary short and simple  {text}",
             agent=analysis_agent,
-            expected_output="A comprehensive analysis of the blood test results, highlighting any abnormalities or areas of concern."
+            expected_output="A short summary of analysis of the blood test results, highlighting any abnormalities or areas of concern with short."
         )
 
         search_task = Task(
@@ -80,13 +80,6 @@ def main():
             print(f"Output:\n{task_output.raw}")
             print("-" * 50)
 
-        # Step 6: Display results
-        # print("Blood Test Analysis:")
-        # print(results[0])
-        # print("\nRelevant Articles:")
-        # print(results[1])
-        # print("\nHealth Recommendations:")
-        # print(results[2])
 
     except Exception as e:
         print(f"An error occurred: {str(e)}", file=sys.stderr)

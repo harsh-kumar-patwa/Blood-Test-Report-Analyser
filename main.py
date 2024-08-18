@@ -3,6 +3,7 @@ from utils.pdf_parser import PDFParser
 from gemini.gemini_api import GoogleGeminiAPI
 from custom_LLM import GeminiLLM
 import sys
+from utils.pdf_creator import create_pdf
 
 def main():
     try:
@@ -91,6 +92,16 @@ def main():
         print("\n--- Health Recommendations ---")
         print(f"\n{result.tasks_output[2].raw}")
         print("-" * 50)
+
+        # Extract results
+        analysis_output = next(output for output in result.tasks_output if "Analyze the following blood test report" in output.description)
+        articles_output = next(output for output in result.tasks_output if "Search for 5 relevant health articles" in output.description)
+        recommendations_output = next(output for output in result.tasks_output if "Generate health recommendations" in output.description)
+
+        # Create PDF
+        output_pdf_path = input("\nEnter the path to save the PDF report: ")
+        create_pdf(analysis_output.raw, articles_output.raw, recommendations_output.raw, output_pdf_path)
+        print(f"\nPDF report generated and saved to: {output_pdf_path}")
 
 
     except Exception as e:

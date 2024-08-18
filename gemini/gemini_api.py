@@ -1,5 +1,5 @@
 import requests
-from config import GEMINI_API_KEY
+from config import GEMINI_API_KEY, SEARCH_WEB_KEY, SEARCH_WEB_ENGINE_ID
 
 class GoogleGeminiAPI:
     def __init__(self):
@@ -34,8 +34,8 @@ class GoogleGeminiAPI:
     def web_search(self, query):
         search_url = "https://customsearch.googleapis.com/customsearch/v1"
         params = {
-            "key": "AIzaSyAAMN4YIo4BoNSC7tcX7Gix97n2O5ZppWA",
-            "cx": "57ac64f6ab4b146de",
+            "key": SEARCH_WEB_KEY,
+            "cx": SEARCH_WEB_ENGINE_ID,
             "q": query
         }
         response = requests.get(search_url, params=params)

@@ -2,6 +2,13 @@
 
 This project uses AI to analyze blood test reports, search for relevant health articles, and generate health recommendations.
 
+## Table of content
+   - Project Structure
+   - Setup
+   - Usage
+   - Components
+   - [Approach Document](https://docs.google.com/document/d/1qswPhiAZiHuFvGDQlNAxWRFoS7MrNRlAeg1ZwoXzVZU/edit?usp=sharing)
+
 ## Project Structure
 
 ```

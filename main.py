@@ -1,63 +1,8 @@
-from crewai import Crew, Task
+from crewai import Agent, Task, Crew
 from utils.pdf_parser import PDFParser
 from gemini.gemini_api import GoogleGeminiAPI
-from agents.analysis_agent import BloodTestAnalysisAgent
-from agents.search_agent import ArticleSearchAgent
-from agents.recommendation_agent import HealthRecommendationAgent
-from reportlab.lib.pagesizes import letter
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.enums import TA_JUSTIFY
-import re
+from custom_LLM import GeminiLLM
 import sys
-from datetime import datetime
-
-def convert_markdown_to_html(text):
-    # Convert bold (**text**) to HTML
-    text = re.sub(r'\*\*(.*?)\*\*', r'<b>\1</b>', text)
-    
-    # Convert italic (*text*) to HTML
-    text = re.sub(r'\*(.*?)\*', r'<i>\1</i>', text)
-    
-    # Convert bullet points
-    text = re.sub(r'^\s*-\s', '• ', text, flags=re.MULTILINE)
-    
-    return text
-
-def create_pdf(analysis_summary, articles, recommendations, output_path):
-    doc = SimpleDocTemplate(output_path, pagesize=letter,
-                            rightMargin=72, leftMargin=72,
-                            topMargin=72, bottomMargin=18)
-    
-    styles = getSampleStyleSheet()
-    styles.add(ParagraphStyle(name='Justify', alignment=TA_JUSTIFY))
-
-    Story = []
-    
-    # Title
-    Story.append(Paragraph("Blood Test Report Analysis", styles['Title']))
-    Story.append(Spacer(1, 12))
-    
-    # Date
-    Story.append(Paragraph(f"Report generated on: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", styles['Normal']))
-    Story.append(Spacer(1, 12))
-    
-    # Analysis Summary
-    Story.append(Paragraph("Analysis Summary:", styles['Heading2']))
-    Story.append(Paragraph(convert_markdown_to_html(analysis_summary), styles['Justify']))
-    Story.append(Spacer(1, 12))
-    
-    # Relevant Articles
-    Story.append(Paragraph("Relevant Articles:", styles['Heading2']))
-    for i, article in enumerate(articles, 1):
-        Story.append(Paragraph(f"{i}. {article}", styles['Normal']))
-    Story.append(Spacer(1, 12))
-    
-    # Health Recommendations
-    Story.append(Paragraph("Health Recommendations:", styles['Heading2']))
-    Story.append(Paragraph(convert_markdown_to_html(recommendations), styles['Justify']))
-    
-    doc.build(Story)
 
 def main():
     try:
@@ -70,69 +15,79 @@ def main():
             print("Error: No text extracted from the PDF. Please check the PDF file.")
             return
 
-        # Step 2: Initialize Google Gemini API
+        # Step 2: Initialize Google Gemini API and custom LLM
         gemini_api = GoogleGeminiAPI()
+        custom_llm = GeminiLLM(gemini_api)
 
         # Step 3: Create agents
-        analysis_agent = BloodTestAnalysisAgent(
-            name="Blood Test Analyzer",
-            goal="Analyze blood test reports and provide summaries",
-            backstory="An expert in interpreting medical test results",
+        analysis_agent = Agent(
+            role="Blood Test Analyzer",
+            goal="Analyze blood test reports and provide detailed summaries",
+            backstory="An expert in interpreting medical test results with years of experience in clinical diagnostics.",
             verbose=True,
             allow_delegation=False,
-            gemini_api=gemini_api
+            llm=custom_llm
         )
-        search_agent = ArticleSearchAgent(
-            name="Article Searcher",
+
+        search_agent = Agent(
+            role="Medical Article Researcher",
             goal="Find relevant health articles based on blood test analysis",
-            backstory="A skilled researcher with vast knowledge of medical literature",
+            backstory="A skilled researcher with vast knowledge of medical literature and access to extensive medical databases.",
             verbose=True,
             allow_delegation=False,
-            gemini_api=gemini_api
+            llm=custom_llm
         )
-        recommendation_agent = HealthRecommendationAgent(
-            name="Health Recommender",
+
+        recommendation_agent = Agent(
+            role="Health Advisor",
             goal="Generate health recommendations based on blood test results and relevant articles",
-            backstory="An experienced health advisor specializing in personalized recommendations",
+            backstory="An experienced health advisor specializing in personalized recommendations, with a background in integrative medicine.",
             verbose=True,
             allow_delegation=False,
-            gemini_api=gemini_api
+            llm=custom_llm
         )
 
         # Step 4: Define tasks
         analyze_task = Task(
-            description=text,
-            agent=analysis_agent
+            description=f"Analyze the following blood test report and provide a detailed summary: {text}",
+            agent=analysis_agent,
+            expected_output="A comprehensive analysis of the blood test results, highlighting any abnormalities or areas of concern."
         )
 
         search_task = Task(
-            description="Search for relevant health articles based on the analysis summary",
-            agent=search_agent
+            description="Search for 5 relevant health articles based on the blood test analysis. Provide titles and URLs.",
+            agent=search_agent,
+            expected_output="A list of 5 relevant health articles with their titles and URLs, related to the findings in the blood test analysis."
         )
 
         recommend_task = Task(
-            description="Generate health recommendations based on the analysis and articles",
-            agent=recommendation_agent
+            description="Generate health recommendations based on the blood test analysis and the found articles.",
+            agent=recommendation_agent,
+            expected_output="A set of actionable health recommendations based on the blood test analysis and information from the relevant articles."
         )
 
         # Step 5: Create and run the crew
         crew = Crew(
             agents=[analysis_agent, search_agent, recommendation_agent],
             tasks=[analyze_task, search_task, recommend_task],
-            verbose=2
+            verbose=True
         )
-        result = crew.run()
+        result = crew.kickoff()
 
-        # Step 6: Extract results
-        analysis_summary = result[0]
-        articles = result[1]
-        recommendations = result[2]
+        # Step 6: Display results
+        for i, task_output in enumerate(result.tasks_output):
+            print(f"\n--- Task {i+1} Output ---")
+            print(f"Output:\n{task_output.raw}")
+            print("-" * 50)
 
-        # Step 7: Generate PDF report
-        output_pdf_path = "/home/harsh/Desktop/blood_test_report/analysis_report.pdf"
-        create_pdf(analysis_summary, articles, recommendations, output_pdf_path)
-        print(f"\nPDF report generated and saved to: {output_pdf_path}")
-    
+        # Step 6: Display results
+        # print("Blood Test Analysis:")
+        # print(results[0])
+        # print("\nRelevant Articles:")
+        # print(results[1])
+        # print("\nHealth Recommendations:")
+        # print(results[2])
+
     except Exception as e:
         print(f"An error occurred: {str(e)}", file=sys.stderr)
         sys.exit(1)

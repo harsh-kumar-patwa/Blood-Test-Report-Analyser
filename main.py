@@ -6,8 +6,13 @@ import sys
 
 def main():
     try:
+        for i in range(1, 10):
+            print("\n")
+        print("Welcome to the Blood Test Analysis System!")
+        print("\nThis system will help you analyze a blood test report, find relevant health articles, and generate health recommendations based on the report and articles.")
+
         # Step 1: Parse PDF report
-        pdf_file_path = "/home/harsh/Desktop/blood_test_report/WM17S.pdf"
+        pdf_file_path = input("\nEnter the path to the PDF blood test report: ")
         parser = PDFParser(pdf_file_path)
         text = parser.parse_text()
         

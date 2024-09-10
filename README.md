@@ -1,4 +1,4 @@
-# Blood Test Analysis AI
+# Blood Test Report Analyser 
 
 This project uses AI to analyze blood test reports, search for relevant health articles, and generate health recommendations.
 
@@ -34,8 +34,8 @@ This project uses AI to analyze blood test reports, search for relevant health a
 
 1. Clone the repository:
    ```
-   git clone https://github.com/harsh-kumar-patwa/wingify-assignment
-   cd wingify-assignment
+   git clone https://github.com/harsh-kumar-patwa/Blood-Test-Report-Analyser
+   cd Blood-Test-Report-Analyser
    ```
 
 2. Install the required dependencies:

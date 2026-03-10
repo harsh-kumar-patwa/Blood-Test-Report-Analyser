@@ -81,26 +81,35 @@ def main():
         result = crew.kickoff()
 
         # Step 6: Display results
+        # crewai 0.28.8 returns a string, not an object with tasks_output
+        if hasattr(result, 'tasks_output'):
+            analysis_text = result.tasks_output[0].raw_output
+            articles_text = result.tasks_output[1].raw_output
+            recommendations_text = result.tasks_output[2].raw_output
+        else:
+            # Result is a single string with all task outputs
+            result_str = str(result)
+            parts = result_str.split("\n\n")
+            # Use the full result for each section if we can't split cleanly
+            analysis_text = analyze_task.output.raw_output if hasattr(analyze_task, 'output') and analyze_task.output else result_str
+            articles_text = search_task.output.raw_output if hasattr(search_task, 'output') and search_task.output else ""
+            recommendations_text = recommend_task.output.raw_output if hasattr(recommend_task, 'output') and recommend_task.output else ""
+
         print("\n--- Blood Test Analysis ---")
-        print(f"\n{result.tasks_output[0].raw}")
+        print(f"\n{analysis_text}")
         print("-" * 50)
 
         print("\n--- Relevant Articles ---")
-        print(f"\n{result.tasks_output[1].raw}")
+        print(f"\n{articles_text}")
         print("-" * 50)
 
         print("\n--- Health Recommendations ---")
-        print(f"\n{result.tasks_output[2].raw}")
+        print(f"\n{recommendations_text}")
         print("-" * 50)
-
-        # Extract results
-        analysis_output = next(output for output in result.tasks_output if "Analyze the following blood test report" in output.description)
-        articles_output = next(output for output in result.tasks_output if "Search for 5 relevant health articles" in output.description)
-        recommendations_output = next(output for output in result.tasks_output if "Generate health recommendations" in output.description)
 
         # Create PDF
         output_pdf_path = input("\nEnter the path to save the PDF report: ")
-        create_pdf(analysis_output.raw, articles_output.raw, recommendations_output.raw, output_pdf_path)
+        create_pdf(analysis_text, articles_text, recommendations_text, output_pdf_path)
         print(f"\nPDF report generated and saved to: {output_pdf_path}")
 
 

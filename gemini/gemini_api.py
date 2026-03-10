@@ -4,7 +4,7 @@ from config import GEMINI_API_KEY, SEARCH_WEB_KEY, SEARCH_WEB_ENGINE_ID
 class GoogleGeminiAPI:
     def __init__(self):
         self.api_key = GEMINI_API_KEY
-        self.api_url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent"
+        self.api_url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent"
 
     def _make_api_request(self, prompt):
         url = f"{self.api_url}?key={self.api_key}"
@@ -17,7 +17,10 @@ class GoogleGeminiAPI:
         if response.status_code == 200:
             return response.json()
         else:
-            print(f"API Error: {response.status_code} - {response.text}")
+            error_msg = f"API Error: {response.status_code} - {response.text}"
+            print(error_msg)
+            if response.status_code == 429:
+                raise Exception("Gemini API quota exceeded. Please wait or use a new API key/project.")
             return None
 
     def generate_summary(self, text):

@@ -7,3 +7,7 @@ reportlab
 requests
 PyPDF2
 pdfplumber
+streamlit
+fastapi
+uvicorn[standard]
+python-multipart

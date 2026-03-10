@@ -61,15 +61,17 @@ def main():
         )
 
         search_task = Task(
-            description="Search for 5 relevant health articles based on the blood test analysis. Provide titles and URLs.",
+            description="Based on the blood test analysis provided, search for 5 relevant health articles. Provide titles and URLs.",
             agent=search_agent,
-            expected_output="A list of 5 relevant health articles with their titles and URLs, related to the findings in the blood test analysis."
+            expected_output="A list of 5 relevant health articles with their titles and URLs, related to the findings in the blood test analysis.",
+            context=[analyze_task]
         )
 
         recommend_task = Task(
-            description="Generate health recommendations based on the blood test analysis and the found articles.",
+            description="Based on the blood test analysis and the found articles, generate actionable health recommendations.",
             agent=recommendation_agent,
-            expected_output="A set of actionable health recommendations based on the blood test analysis and information from the relevant articles."
+            expected_output="A set of actionable health recommendations based on the blood test analysis and information from the relevant articles.",
+            context=[analyze_task, search_task]
         )
 
         # Step 5: Create and run the crew

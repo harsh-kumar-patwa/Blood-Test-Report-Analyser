@@ -1,6 +1,6 @@
-# Blood Test Report Analyser 
+# Blood Test Report Analyser
 
-This project uses AI to analyze blood test reports, search for relevant health articles, and generate health recommendations.
+This project uses AI to analyze blood test reports, search for relevant health articles, and generate health recommendations. It features a Streamlit frontend and a FastAPI backend.
 
 ## Table of content
    - Project Structure
@@ -23,10 +23,11 @@ This project uses AI to analyze blood test reports, search for relevant health a
 │   ├── pdf_creator.py
 │   └── pdf_parser.py
 ├── .gitignore
-├── WM17S.pdf
+├── app.py              # Streamlit frontend
+├── server.py           # FastAPI backend
+├── start.sh            # Script to start both backend and frontend
 ├── custom_LLM.py
-├── main.py
-├── output.pdf
+├── main.py             # CLI version
 └── requirements.txt
 ```
 
@@ -38,48 +39,67 @@ This project uses AI to analyze blood test reports, search for relevant health a
    cd Blood-Test-Report-Analyser
    ```
 
-2. Install the required dependencies:
+2. Create and activate a virtual environment:
+   ```
+   python -m venv venv
+   source venv/bin/activate
+   ```
+
+3. Install the required dependencies:
    ```
    pip install -r requirements.txt
    ```
 
-3. Create a `config.py` file in the root directory with your API keys:
-   ```python
-   GEMINI_API_KEY = "your_gemini_api_key_here"
-   SEARCH_WEB_KEY = "your_search_web_key_here"
-   SEARCH_WEB_ENGINE_ID = "your_search_engine_id_here"
-   ```
-
-
 ## Usage
 
-Run the main script:
+### Web UI (Recommended)
 
+Run the start script to launch both the backend and frontend:
+
+```
+./start.sh
+```
+
+This will:
+1. Start the FastAPI backend on `http://localhost:8000`
+2. Wait for the backend to be ready
+3. Start the Streamlit frontend on `http://localhost:3000`
+
+On the frontend:
+1. Enter your three API keys (Gemini API Key, Search Web API Key, Search Engine ID) and click **Start**
+2. Upload a blood test PDF report
+3. Click **Analyse Report** and wait for the progress bar to complete
+4. View the analysis, relevant articles, and health recommendations
+5. Download the output PDF (named `<input-filename>-recommendation.pdf`)
+
+Press `Ctrl+C` to stop both servers.
+
+### CLI
+
+Alternatively, create a `config.py` file with your API keys:
+```python
+GEMINI_API_KEY = "your_gemini_api_key_here"
+SEARCH_WEB_KEY = "your_search_web_key_here"
+SEARCH_WEB_ENGINE_ID = "your_search_engine_id_here"
+```
+
+Then run:
 ```
 python main.py
 ```
-This will prompt you to add input pdf file path , just add 
 
-```
-WM17S.pdf
-```
+## API Keys Required
 
-At the end it will ask for output pdf file path , just add
-
-```
-ouput.pdf
-```
-
-
-
-This will:
-1. Analyze the blood test report (WM17S.pdf)
-2. Search for relevant health articles
-3. Generate health recommendations
-4. Create a PDF report (output.pdf) with the results
+- **Gemini API Key** - Google Gemini API key for AI analysis
+- **Search Web API Key** - Google Custom Search API key for article search
+- **Search Engine ID** - Google Custom Search Engine ID
 
 ## Components
 
+- `app.py`: Streamlit frontend with API key configuration, PDF upload, progress bar, and results display
+- `server.py`: FastAPI backend exposing `/analyse` and `/download` endpoints
+- `start.sh`: Startup script that launches backend first, waits for it, then starts frontend
+- `main.py`: CLI version of the analyser
 - `agents/`: Contains agent classes for the AI system
   - `base_agent.py`: Base class for all agents
   - `analysis_agent.py`: Agent for analyzing blood test reports
@@ -91,8 +111,6 @@ This will:
   - `pdf_creator.py`: Functions for creating the output PDF report
   - `pdf_parser.py`: Functions for parsing input PDF blood test reports
 - `custom_LLM.py`: Custom language model implementation
-- `main.py`: Main script orchestrating the analysis process
 
-## Approach Document 
+## Approach Document
 [Approach Doc](https://docs.google.com/document/d/1qswPhiAZiHuFvGDQlNAxWRFoS7MrNRlAeg1ZwoXzVZU/edit?usp=sharing)
-

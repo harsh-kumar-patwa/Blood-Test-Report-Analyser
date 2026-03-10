@@ -1,9 +1,18 @@
 import requests
-from config import GEMINI_API_KEY, SEARCH_WEB_KEY, SEARCH_WEB_ENGINE_ID
+
+# For backward compatibility with CLI usage
+try:
+    from config import GEMINI_API_KEY, SEARCH_WEB_KEY, SEARCH_WEB_ENGINE_ID
+except ImportError:
+    GEMINI_API_KEY = ""
+    SEARCH_WEB_KEY = ""
+    SEARCH_WEB_ENGINE_ID = ""
 
 class GoogleGeminiAPI:
-    def __init__(self):
-        self.api_key = GEMINI_API_KEY
+    def __init__(self, gemini_api_key=None, search_web_key=None, search_engine_id=None):
+        self.api_key = gemini_api_key or GEMINI_API_KEY
+        self.search_web_key = search_web_key or SEARCH_WEB_KEY
+        self.search_engine_id = search_engine_id or SEARCH_WEB_ENGINE_ID
         self.api_url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent"
 
     def _make_api_request(self, prompt):
@@ -37,8 +46,8 @@ class GoogleGeminiAPI:
     def web_search(self, query):
         search_url = "https://customsearch.googleapis.com/customsearch/v1"
         params = {
-            "key": SEARCH_WEB_KEY,
-            "cx": SEARCH_WEB_ENGINE_ID,
+            "key": self.search_web_key,
+            "cx": self.search_engine_id,
             "q": query
         }
         response = requests.get(search_url, params=params)
